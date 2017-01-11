@@ -1,0 +1,230 @@
+<!DOCTYPEhtml>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Visualizing Education Inequality</title>
+<script src="https://d3js.org/d3.v3.min.js"></script>
+
+	<style type="text/css">
+		circle{
+			opacity: 0.4;
+		}
+		h2{
+			font-family: Arial;
+			text-align: center;
+			font-weight: 600;
+		}
+		.axis{
+			font-family: arial;
+			font-size: 0.6em;
+			font-weight: 200;
+		}
+		.label{
+			font-family: Arial;
+			font-size: 0.8em;
+			font-weight: 600;
+		}
+		path{
+			fill: none;
+			stroke: black;
+			stroke-width: 1px;
+		}
+		.tick{
+			fill: none;
+			stroke: black;
+		}
+		svg{
+			display:block;
+			margin:auto;
+		}
+	</style>
+	
+	<script type="text/javascript">
+		function draw(data) {
+			 "use strict";
+        var margin = 70,
+            width = 700 - margin,
+            height = 500 - margin;
+				
+        var svg = d3.select("body")
+          .append("svg")
+          .attr("width", width + margin)
+          .attr("height", height + margin)
+          .append('g')
+          .attr('class','chart');
+        
+				d3.select('svg')
+					.selectAll('circle')
+					.data(data)
+					.enter()
+					.append('circle')
+				
+				// Define axis, y-axis needs to start from 0
+				
+				var exp_extent = d3.extent(data, function(d) {
+						return d['PPP'];
+				}); 
+			
+				var score_max = d3.max(data, function (d) {
+					return (d['MATH.FEMALE'] < d['MATH.MALE']) ? 
+					d['MATH.MALE'] : d['MATH.FEMALE'];
+				})
+				
+				var exp_scale = d3.scale.linear()
+						.domain(exp_extent)
+						.range([margin, width]);
+				
+				var score_scale = d3.scale.linear()
+						.domain([0, score_max])
+						.range([height, margin]);
+				
+				var exp_axis = d3.svg.axis()
+						.scale(exp_scale);
+			
+				var score_axis = d3.svg.axis()
+						.scale(score_scale)
+						.orient('left');
+				
+				// Append SVG to page corresponding to the d3 x-axis
+				d3.select('svg')
+					.append('g')
+					.attr('class', 'x axis')
+					.attr('transform', "translate(0," + height + ")")
+					.call(exp_axis);
+				
+				// Append SVG to page corresponding to the d3 y-axis
+				d3.select("svg")
+					.append("g")
+					.attr("class", "y axis")
+					.attr("transform", "translate(" + margin + ",0)")
+					.call(score_axis);
+				
+			  // Scale circles by area	
+				var diff_extent = d3.extent(data, function(d) {
+						return Math.abs(d['MATH.DIFF']);
+				});
+			
+				var radius_scale = d3.scale.sqrt()
+					 .domain(diff_extent)
+					 .range([5,25]);
+
+				d3.selectAll('circle')
+					.attr('cx', function(d) {
+							return exp_scale(d['PPP']);
+					})
+					.attr('cy', function(d) {
+							return score_scale(d['MATH.MEAN']);
+					})
+					.attr('r', function(d) {
+							return radius_scale(Math.abs(d['MATH.DIFF']));
+					})
+					.attr('fill', function(d) {
+							if (d['MATH.FEMALE']>=d['MATH.MALE']) {
+								return 'red';
+							} else {return 'blue';}
+					})
+			
+				// Add axes labels
+				svg.append("text")
+    			 .attr("class", "x label")
+					 .attr("text-anchor", "end")
+    			 .attr("x", margin + width/2)
+					 .attr("y", height + margin/2)
+					 .text("GDP Per Capita ($)");
+				
+				svg.append("text")
+					 .attr("class", "y label")
+					 .attr("text-anchor", "end")
+					 .attr("y", 20)
+					 .attr("x", -height/2)
+					 .attr("dy", ".75em")
+					 .attr("transform", "rotate(-90)")
+					 .text("Test Score");
+			
+				//Add bubble legends
+				var legend = svg.append("g")
+						.attr("class", "legend")
+						.attr("transform", "translate(" + (width - 100) + "," + 20 + ")")
+						.selectAll("g")
+						.data(["Female Advantage", "Male Advantage"])
+						.enter().append("g");
+			
+				// Add tooltip
+				var tooltip = d3.select("body")
+    			 .append("div")
+					 .style("position", "absolute")
+					 .style("z-index", "10")
+					 .style("visibility", "hidden")
+					 .style("color", "white")
+					 .style("padding", "8px")
+					 .style("background-color", "rgba(0, 0, 0, 0.75)")
+					 .style("border-radius", "6px")
+					 .style("font", "12px Arial")
+					 .text("tooltip");
+			
+				d3.selectAll("circle")
+					 .on("mouseover", function(d) {
+						tooltip.html(d.COUNTRY + '<br\>' +
+												 "Math Score: "+d3.format(".1f")(d['MATH.MEAN']) + 
+												 '<br\>' + "Gender Difference: " +
+												 d3.format(".1f")(Math.abs(d['MATH.DIFF'])) +
+												 '<br\>' + 'GDP Per Capita: '+ '$' +
+												 d3.format(",.2r")(d.PPP));
+            tooltip.style("visibility", "visible");
+					 })
+					 .on("mousemove", function() {
+						return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
+					 })
+					 .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+										
+				// Adding circles to the legend
+				legend.append('circle')
+					.attr('cy', function(d, i) {
+						return i * 30;
+					})
+					.attr("r", 10)
+					.attr('fill', function(d) {
+							if (d=="Male Advantage"){
+								return 'blue';
+							}else{
+								return 'red';
+							}
+					});
+			
+				legend.append("text")
+					.attr("y", function(d, i) {
+						return i * 30 + 5;
+					})
+					.attr("x", 25)
+					.text(function(d) {
+						return d;
+					});
+						
+		};
+	</script>
+</head>
+
+<body>
+	<div class="container" id="main">
+    <h2 class="pull-left">Math Performance by GDP Per Capita</h2>
+    <div class="pull-right" style="margin-top: 1.5em;">
+			<p align="center">Data source: <a href="http://www.oecd.org/pisa/data/pisa2012database-downloadabledata.htm">PISA 2012,</a> 
+			<a href="http://data.worldbank.org/indicator/NY.GDP.PCAP.CD">The World Bank</a>
+			</p>
+			</div>
+		</div>
+	  <script type="text/javascript">
+		d3.csv("FULL_DATA_ALL.csv", function(d) {
+			d['PPP'] = +d['PPP'];
+			d['MATH.MEAN'] = +d['MATH.MEAN'];
+			d['MATH.FEMALE'] = +d['MATH.FEMALE'];
+			d['MATH.MALE'] = +d['MATH.MALE'];
+			d['MATH.DIFF'] = +d['MATH.DIFF'];
+			return d;
+		},draw);
+		</script>
+	
+</body>
+</html>
+
+
