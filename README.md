@@ -22,13 +22,16 @@ In this visualization, I used GDP per capita on the x-axis to represent the leve
 - Vagueness in circle sizes: It's unclear whether the diameter or the size of the circles is representing the sizes of gender gap.
 - Extent of the y-axis: It may be necessary to tell the audience a little more about the test and the range of the test score, such as "Test Scores, Max 650, based on X exam".
 - Sizes of the bubbles: It's hard to hover over the bubbles on the left as it's so crowded over there. May consider reducing the bubble size.
-- Data segmentation: It seems that the correlation between GDP per capita and students' math performance is greater among the poorer countries. There is a clear difference in the trend so I would consider making two seperate graphs here. 
 
 #### Feedback 2
-- The data points are cramped on the left side of the graph. It seems that the correlation between GDP and math performance is extremely high for low income countries. It's rather interesting that if the country is poor, GDP per capita explains almost all of the test performance, but as the country gets richer, the correlation goes closer to zero. The left side contains a lot of interesting information, but because it's so crowded, the audience cannot actually see anything. It would be great if you could zoom in on the left side to really go into the details.
+- The data points are a little cramped on the left side of the graph. It seems that the correlation between GDP and math performance is extremely high for low income countries. It's rather interesting that if the country is poor, GDP per capita explains almost all of the test performance, but as the country gets richer, the correlation goes closer to zero. The left side contains a lot of interesting information, but because it's so crowded, the audience cannot actually see anything. It would be great if you could zoom in on the left side to really go into the details.
 - The gender gap is also cool, but I don't see why you would want to associate it with the level of development of the countries. It would make a lot of sense if more red bubbles appear as the countries get richer, or the blue ones gets smaller towards the right, but currently there seems to be no correlations between the gender gap and the country's level of development. I would consider making two charts, one with and one without gender, to display the sizes of the gap and see what to do from there. 
 
+
 #### Version 2
+<a href=https://bl.ocks.org/siyubao/6b29e4a5d50ad0e171ce97911a98bbcd>- Visualizing Inequality in Math Performance</a><br><br>
+I clarified the meaning of "advantage" in the legend and changed the title and subtitle to directly address the issue. I also made the circles smaller so that the graph looks neater and clearer. 
+
 
 #### Version 3
 
