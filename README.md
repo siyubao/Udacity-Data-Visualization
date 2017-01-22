@@ -3,7 +3,8 @@
 ## Summary 
 This visualization shows the inequality in Math performance between male and female students in various countries.
 - In most countries, male students perform better than female students in math.
-- The more developed a country is, the better the students' math performance will be.
+- The more developed a country is, the better the students' math performance is.
+- The level of development of a country does not reduce gender gap in math performance.
 
 ## Design 
 
@@ -30,7 +31,7 @@ In this visualization, I used GDP per capita on the x-axis to represent the leve
 
 #### Version 2
 <a href=https://bl.ocks.org/siyubao/6b29e4a5d50ad0e171ce97911a98bbcd>- Visualizing Inequality in Math Performance</a><br><br>
-I clarified the meaning of "advantage" in the legend and changed the title and subtitle to directly address the issue. I also made the circles smaller so that the graph looks neater and clearer. 
+I clarified the meaning of "advantage" in the legend and changed the title and subtitle to directly address the issue. I also decreased the size of the circles so that the graph looks neater and clearer. Also, more information is now shown on legend. 
 
 
 #### Version 3
