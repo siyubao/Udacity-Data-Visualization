@@ -53,7 +53,7 @@ Financial Inequality - as referenced in the feedback the correlation between low
 3. making your chart bigger or responsive to the size of the webpage - see link here under cross browser solution.
 
 #### Version 4
-<a href=http://bl.ocks.org/siyubao/b74542d1aba425380812b0894a1a3657>Gender and Economic Inequalities Remain Critical to High School Math Education Levels</a><br><br>
+<a href=http://bl.ocks.org/siyubao/b74542d1aba425380812b0894a1a3657>- Gender and Economic Inequalities Remain Critical to High School Math Education Levels</a><br><br>
 In this version, I changed the title into a self-explanatory one and added some key findings right below the graphics. 
 I've also created buttons to filter the countries, making it a lot easier to see each point. I've also deleted the feature of 'scaling circle by size' because it distract readers from the main points I'm making. 
 Also, I've changed the styling to make the graph look better.
