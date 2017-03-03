@@ -2,9 +2,10 @@
 
 ## Summary 
 This visualization shows the inequality in Math performance between male and female students in various countries.
-- In most countries, male students perform better than female students in math.
-- The more developed a country is, the better the students' math performance is.
-- The level of development of a country does not reduce gender gap in math performance.
+- Male students perform better than female students in most countries.
+- Asia has the most countries in which girls perform better
+- The more developed a country is, the higher the students' math levels are, especially among European countries.
+- Economic development does not improve math performance after a certain point.
 
 ## Design 
 
