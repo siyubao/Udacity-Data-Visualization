@@ -42,6 +42,23 @@ However, I didn’t split the graph as is suggested. The clarity of the graph im
 <a href=http://bl.ocks.org/siyubao/3190dda26c5d6af283d930020feede2f>- Visualizing Inequality in Math Performance</a><br><br>
 In this updated version, I added some more information about the two datasets and replaced the subtitle with a clearer step-by-step explanation of the elements in the graph. I’ve also rescaled the circle size so that it reflects the range truthfully. 
 
+#### Feedback 4
+- Currently your visualisation is more on the exploratory side - presenting the reader with the data and allowing them to interpret for themselves. To make your visualisation more explanatory you need to make sure this message is in your graphic as well. Changing the wording of your title and introductory paragraph is the easiest way to do this. Often a newspaper headline style title is a good start.
+- I think you've got one key problem - you are trying to tell too many stories on one chart and in doing so you are not getting a clear message across. So you are looking at Gender Inequality AND Financial Inequality. Looking at these issues one at a time:
+Gender Inequality - your colour scales are fantastic. They really highlight how pronounced the male dominance is across the board. However, the overlapping of the bubbles makes it very difficult to see what's going on, particularly from $0-$60,000. And, the bubble size is also confusing both with overlapping and having a legend which refers to colour but not size.
+Financial Inequality - as referenced in the feedback the correlation between low performance and low GDP is really interesting but you just can't see what's going on with all the overlapping.
+- I have various suggestion, all or a combination of which might solve the problem above. It is a matter of testing them out and seeing which you prefer.
+1. restricting the GDP scale - i.e. 0, 20,000, 40,000, 60,000, over 80,000
+2. keeping the chart type, colour coding and X-axis (GDP) but losing the radius scale and having two charts alongside each other - one with Maths score on the Y-axis, the other with Gender Difference on the Y-axis.
+3. making your chart bigger or responsive to the size of the webpage - see link here under cross browser solution.
+
+#### Version 4
+<a href=http://bl.ocks.org/siyubao/b74542d1aba425380812b0894a1a3657>Gender and Economic Inequalities Remain Critical to High School Math Education Levels</a><br><br>
+In this version, I changed the title into a self-explanatory one and added some key findings right below the graphics. 
+I've also created buttons to filter the countries, making it a lot easier to see each point. I've also deleted the feature of 'scaling circle by size' because it distract readers from the main points I'm making. 
+Also, I've changed the styling to make the graph look better.
+
 ## Resources
-<a href=http://www.oecd.org/pisa/data/pisa2012database-downloadabledata.htm>PISA 2012</a>
+<a href=http://arnicas.github.io/interactive-vis-course/Week7/lines_transition.html>Interactive Data Vis</a><br>
+<a href=http://www.oecd.org/pisa/data/pisa2012database-downloadabledata.htm>PISA 2012</a><br>
 <a href=http://data.worldbank.org/indicator/NY.GDP.PCAP.CD>GDP Per Capita</a>
