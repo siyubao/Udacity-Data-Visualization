@@ -1,0 +1,718 @@
+<!DOCTYPEhtml>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="author" content="Siyu Bao">
+<title>Visualizing Inequality in Math Performance</title>
+
+	<style type="text/css">
+		circle{
+			opacity: 0.4;
+		}
+		selected{
+			opacity: 0.6;
+		}
+		h2{
+			font-family: Arial;
+			text-align: center;
+			font-weight: 600;
+		}
+		h4{
+			font-family: Arial;
+			text-align: center;
+			font-weight: 200;
+			font-size: 15pt;
+		}
+		.container{
+			left:50px; 
+			right:50px;
+		}
+		.axis{
+			font-family: arial;
+			font-size: 0.6em;
+			font-weight: 200;
+		}
+		.label{
+			font-family: Arial;
+			font-size: 0.8em;
+			font-weight: 600;
+		}
+		.button{
+			-moz-box-shadow: inset 0px 1px 0px 0px #ffffff;
+			-webkit-box-shadow: inset 0px 1px 0px 0px #ffffff;
+			box-shadow: inset 0px 1px 0px 0px #ffffff;
+			background-color: #ededed;
+			-moz-border-radius: 6px;
+			-webkit-border-radius: 6px;
+			border-radius: 6px;
+			border: 1px solid #dcdcdc;
+			display: inline-block;
+			cursor: pointer;
+			color: #777777;
+			font-family: Arial;
+			font-size: 12px;
+			font-weight: bold;
+			padding: 5px 12px;
+			text-decoration: none;
+			text-shadow: 0px 1px 0px #ffffff;
+		}
+		.button:hover{
+			background-color: #dfdfdf;
+		}
+		.button:active{
+			position: relative;
+			top: 1px;
+		}
+		.option{
+			text-align: center; 
+			font-size: 10pt;
+			font-family: arial;
+		}
+		.finding{
+			font-size: 12pt;
+			font-family: arial;
+		}
+		.legend{
+			font-family: arial;
+			font-size: 10pt;
+			font-weight: 400;
+		}
+		path{
+			fill: none;
+			stroke: black;
+			stroke-width: 1px;
+		}
+		.tick{
+			fill: none;
+			stroke: black;
+		}
+		svg{
+			display: block;
+			margin: auto;
+			font-family: Arial;
+		}
+		exp{
+			display: block;
+			font-size: 11pt;
+			text-align: center;
+			background-color: #ededed;	
+		}
+		p{
+			display: block;
+			text-align: center;
+		}
+		}
+	</style>
+	
+	<script src="https://d3js.org/d3.v3.min.js"></script>
+	
+	<script type="text/javascript">
+		function draw(data) {
+			 "use strict";
+        var margin = 70,
+            width = 900 - margin,
+            height = 650 - margin;
+			
+        var svg = d3.select("#chartcontainer")
+          .append("svg")
+          .attr("width", width + margin)
+          .attr("height", height + margin)
+          .append('g')
+          .attr('class','chart');
+
+        // Append circles 
+				d3.select('svg')
+					.selectAll('circle')
+					.data(data)
+					.enter()
+					.append('circle')
+				
+				// Define axis. y-axis needs to start from 0
+				var exp_extent = d3.extent(data, function(d) {
+						return d['PPP'];
+				}); 
+			
+				var score_max = d3.max(data, function (d) {
+					return (d['MATH.FEMALE'] < d['MATH.MALE']) ? 
+					d['MATH.MALE'] : d['MATH.FEMALE'];
+				})
+				
+				var exp_scale = d3.scale.linear()
+						.domain(exp_extent)
+						.range([margin, width]);
+				
+				var score_scale = d3.scale.linear()
+						.domain([0, score_max])
+						.range([height, margin]);
+				
+				var exp_axis = d3.svg.axis()
+						.scale(exp_scale);
+			
+				var score_axis = d3.svg.axis()
+						.scale(score_scale)
+						.orient('left');
+				
+				// Append SVG to page corresponding to the d3 axes
+				d3.select('svg')
+					.append('g')
+					.attr('class', 'x axis')
+					.attr('transform', "translate(0," + height + ")")
+					.call(exp_axis);
+				
+				d3.select("svg")
+					.append("g")
+					.attr("class", "y axis")
+					.attr("transform", "translate(" + margin + ",0)")
+					.call(score_axis);
+				
+			  // Scale circles by area - disabled
+				/* var diff_extent = d3.extent(data, function(d) {
+						return Math.abs(d['MATH.DIFF']);
+				});
+			
+				var radius_scale = d3.scale.sqrt()
+					 .domain(diff_extent)
+					 .range([1,15]); */
+
+				// Add circles to the chart
+				d3.selectAll('circle')
+					.attr('cx', function(d) {
+							return exp_scale(d['PPP']);
+					})
+					.attr('cy', function(d) {
+							return score_scale(d['MATH.MEAN']);
+					})
+					.attr('r', 5)
+					.attr('fill', function(d) {
+							if (d['MATH.FEMALE']>=d['MATH.MALE']) {
+								return 'red';
+							} else {return 'blue';}
+					})
+			
+				// Add axes labels
+				svg.append("text")
+    			 .attr("class", "x label")
+					 .attr("text-anchor", "end")
+    			 .attr("x", margin + width/2)
+					 .attr("y", height + margin/2)
+					 .text("GDP Per Capita** ($)");
+				
+				svg.append("text")
+					 .attr("class", "y label")
+					 .attr("text-anchor", "end")
+					 .attr("y", 20)
+					 .attr("x", -height/2.5)
+					 .attr("dy", ".75em")
+					 .attr("transform", "rotate(-90)")
+					 .text("PISA* Math score (max 720)");
+			
+				// Add tooltip
+				var tooltip = d3.select("#chartcontainer")
+    			 .append("div")
+					 .style("position", "absolute")
+					 .style("z-index", "10")
+					 .style("visibility", "hidden")
+					 .style("color", "white")
+					 .style("padding", "8px")
+					 .style("background-color", "rgba(0, 0, 0, 0.75)")
+					 .style("border-radius", "6px")
+					 .style("font", "12px Arial")
+					 .text("tooltip");
+			
+				d3.selectAll("circle")
+					 .on("mouseover", function(d) {
+						tooltip.html(d.COUNTRY + '<br\>' +
+						"Avg. Math Score: "+d3.format(".1f")(d['MATH.MEAN']) + 
+						'<br\>' + "Gender Difference: " +
+						d3.format(".1f")(Math.abs(d['MATH.DIFF'])) +
+						'<br\>' + 'GDP Per Capita: '+ '$' +
+						d3.format(",.2r")(d.PPP));
+        		tooltip.style("visibility", "visible");
+					  })
+					 .on("mousemove", function() {
+						return tooltip.style("top", (d3.event.pageY-10)+"px")
+					 .style("left",(d3.event.pageX+10)+"px");
+					  })
+					 .on("mouseout", function(){
+					  return tooltip.style("visibility", "hidden");
+						});
+				
+			//Add bubble legends
+				var legend = svg.append("g")
+						.attr("class", "legend")
+						.attr("transform", "translate(" + (width - 100) + "," + 40 + ")")
+						.selectAll("g")
+						.data(["Female score higher", "Male score higher***"])
+						.enter().append("g");	
+			
+				// Add circles to the legend
+				legend.append('circle')
+					.attr("class", "legendcircle")
+					.attr('cy', function(d, i) {
+						return i * 30;
+					})
+					.attr("r", 5)
+					.attr('fill', function(d) {
+							if (d=="Male score higher***"){
+								return 'blue';
+							}else{
+								return 'red';
+							}
+					});
+			
+				// Add text to the legend
+				legend.append("text")
+					.attr("y", function(d, i) {
+						return i * 30 + 5;
+					})
+					.attr("x", 25)
+					.text(function(d) {
+						return d;
+					});
+
+				
+				// Redraw the graph when clicking each button
+				d3.select("#btnA")
+					.on("click", function() {	d3.select("#chartcontainer")
+					.selectAll("circle").remove();
+				
+						d3.select('svg')
+							.selectAll('circle')
+							.data(data)
+							.enter()
+							.append('circle');											
+						
+						d3.selectAll('circle')
+							.attr('cx', function(d) {
+									if (d['AREA']=="Asia") {
+									return exp_scale(d['PPP'])};
+							}).attr('cy', function(d) {
+									if (d['AREA']=="Asia") {
+									return score_scale(d['MATH.MEAN'])};
+							}).attr('r', 5)
+							.attr('fill', function(d) {
+									if (d['MATH.FEMALE']>=d['MATH.MALE']) {
+										return 'red';} else {return 'blue';}
+							});
+						
+						legend.append('circle')
+							.attr("class", "legendcircle")
+							.attr('cy', function(d, i) {
+								return i * 30;
+							}).attr("r", 5)
+							.attr('fill', function(d) {
+									if (d=="Male score higher***"){
+										return 'blue';}else{return 'red';}
+							});
+																											 
+						var tooltip = d3.select("#chartcontainer")
+						 .append("div")
+						 .style("position", "absolute")
+						 .style("z-index", "10")
+						 .style("visibility", "hidden")
+						 .style("color", "white")
+						 .style("padding", "8px")
+						 .style("background-color", "rgba(0, 0, 0, 0.75)")
+						 .style("border-radius", "6px")
+						 .style("font", "12px Arial")
+						 .text("tooltip");
+
+					d3.selectAll("circle")
+						 .on("mouseover", function(d) {
+							tooltip.html(d.COUNTRY + '<br\>' +
+							"Avg. Math Score: "+d3.format(".1f")(d['MATH.MEAN']) + 
+							'<br\>' + "Gender Difference: " +
+							d3.format(".1f")(Math.abs(d['MATH.DIFF'])) +
+							'<br\>' + 'GDP Per Capita: '+ '$' +
+							d3.format(",.2r")(d.PPP));
+							tooltip.style("visibility", "visible");
+							})
+						 .on("mousemove", function() {
+							return tooltip.style("top", (d3.event.pageY-10)+"px")
+						 .style("left",(d3.event.pageX+10)+"px");
+							})
+						 .on("mouseout", function(){
+							return tooltip.style("visibility", "hidden");
+							});	
+																	 
+				});
+				
+					
+			
+				d3.select("#btnE")
+					.on("click", function() {
+					d3.select("#chartcontainer").selectAll("circle").remove();
+					
+					d3.select('svg')
+							.selectAll('circle')
+							.data(data)
+							.enter()
+							.append('circle');											
+						
+						d3.selectAll('circle')
+							.attr('cx', function(d) {
+									if (d['AREA']=="Europe") {
+									return exp_scale(d['PPP'])};
+							}).attr('cy', function(d) {
+									if (d['AREA']=="Europe") {
+									return score_scale(d['MATH.MEAN'])};
+							}).attr('r', 5)
+							.attr('fill', function(d) {
+									if (d['MATH.FEMALE']>=d['MATH.MALE']) {
+										return 'red';} else {return 'blue';}
+							});
+						
+						legend.append('circle')
+							.attr("class", "legendcircle")
+							.attr('cy', function(d, i) {
+								return i * 30;
+							}).attr("r", 5)
+							.attr('fill', function(d) {
+									if (d=="Male score higher***"){
+										return 'blue';}else{return 'red';}
+							});
+																											 
+						var tooltip = d3.select("#chartcontainer")
+						 .append("div")
+						 .style("position", "absolute")
+						 .style("z-index", "10")
+						 .style("visibility", "hidden")
+						 .style("color", "white")
+						 .style("padding", "8px")
+						 .style("background-color", "rgba(0, 0, 0, 0.75)")
+						 .style("border-radius", "6px")
+						 .style("font", "12px Arial")
+						 .text("tooltip");
+
+					d3.selectAll("circle")
+						 .on("mouseover", function(d) {
+							tooltip.html(d.COUNTRY + '<br\>' +
+							"Avg. Math Score: "+d3.format(".1f")(d['MATH.MEAN']) + 
+							'<br\>' + "Gender Difference: " +
+							d3.format(".1f")(Math.abs(d['MATH.DIFF'])) +
+							'<br\>' + 'GDP Per Capita: '+ '$' +
+							d3.format(",.2r")(d.PPP));
+							tooltip.style("visibility", "visible");
+							})
+						 .on("mousemove", function() {
+							return tooltip.style("top", (d3.event.pageY-10)+"px")
+						 .style("left",(d3.event.pageX+10)+"px");
+							})
+						 .on("mouseout", function(){
+							return tooltip.style("visibility", "hidden");
+							});			
+				});
+				
+			
+				d3.select("#btnNA")
+					.on("click", function() {
+					d3.select("#chartcontainer").selectAll("circle").remove();
+					d3.select('svg')
+							.selectAll('circle')
+							.data(data)
+							.enter()
+							.append('circle');											
+						
+						d3.selectAll('circle')
+							.attr('cx', function(d) {
+									if (d['AREA']=="North America") {
+									return exp_scale(d['PPP'])};
+							}).attr('cy', function(d) {
+									if (d['AREA']=="North America") {
+									return score_scale(d['MATH.MEAN'])};
+							}).attr('r', 5)
+							.attr('fill', function(d) {
+									if (d['MATH.FEMALE']>=d['MATH.MALE']) {
+										return 'red';} else {return 'blue';}
+							});
+						
+						legend.append('circle')
+							.attr("class", "legendcircle")
+							.attr('cy', function(d, i) {
+								return i * 30;
+							}).attr("r", 5)
+							.attr('fill', function(d) {
+									if (d=="Male score higher***"){
+										return 'blue';}else{return 'red';}
+							});
+																											 
+						var tooltip = d3.select("#chartcontainer")
+						 .append("div")
+						 .style("position", "absolute")
+						 .style("z-index", "10")
+						 .style("visibility", "hidden")
+						 .style("color", "white")
+						 .style("padding", "8px")
+						 .style("background-color", "rgba(0, 0, 0, 0.75)")
+						 .style("border-radius", "6px")
+						 .style("font", "12px Arial")
+						 .text("tooltip");
+
+					d3.selectAll("circle")
+						 .on("mouseover", function(d) {
+							tooltip.html(d.COUNTRY + '<br\>' +
+							"Avg. Math Score: "+d3.format(".1f")(d['MATH.MEAN']) + 
+							'<br\>' + "Gender Difference: " +
+							d3.format(".1f")(Math.abs(d['MATH.DIFF'])) +
+							'<br\>' + 'GDP Per Capita: '+ '$' +
+							d3.format(",.2r")(d.PPP));
+							tooltip.style("visibility", "visible");
+							})
+						 .on("mousemove", function() {
+							return tooltip.style("top", (d3.event.pageY-10)+"px")
+						 .style("left",(d3.event.pageX+10)+"px");
+							})
+						 .on("mouseout", function(){
+							return tooltip.style("visibility", "hidden");
+							});			
+				});
+			
+			
+				d3.select("#btnO")
+					.on("click", function() {
+					d3.select("#chartcontainer").selectAll("circle").remove();
+					d3.select('svg')
+							.selectAll('circle')
+							.data(data)
+							.enter()
+							.append('circle');											
+						
+						d3.selectAll('circle')
+							.attr('cx', function(d) {
+									if (d['AREA']=="Oceania") {
+									return exp_scale(d['PPP'])};
+							}).attr('cy', function(d) {
+									if (d['AREA']=="Oceania") {
+									return score_scale(d['MATH.MEAN'])};
+							}).attr('r', 5)
+							.attr('fill', function(d) {
+									if (d['MATH.FEMALE']>=d['MATH.MALE']) {
+										return 'red';} else {return 'blue';}
+							});
+						
+						legend.append('circle')
+							.attr("class", "legendcircle")
+							.attr('cy', function(d, i) {
+								return i * 30;
+							}).attr("r", 5)
+							.attr('fill', function(d) {
+									if (d=="Male score higher***"){
+										return 'blue';}else{return 'red';}
+							});
+																											 
+						var tooltip = d3.select("#chartcontainer")
+						 .append("div")
+						 .style("position", "absolute")
+						 .style("z-index", "10")
+						 .style("visibility", "hidden")
+						 .style("color", "white")
+						 .style("padding", "8px")
+						 .style("background-color", "rgba(0, 0, 0, 0.75)")
+						 .style("border-radius", "6px")
+						 .style("font", "12px Arial")
+						 .text("tooltip");
+
+					d3.selectAll("circle")
+						 .on("mouseover", function(d) {
+							tooltip.html(d.COUNTRY + '<br\>' +
+							"Avg. Math Score: "+d3.format(".1f")(d['MATH.MEAN']) + 
+							'<br\>' + "Gender Difference: " +
+							d3.format(".1f")(Math.abs(d['MATH.DIFF'])) +
+							'<br\>' + 'GDP Per Capita: '+ '$' +
+							d3.format(",.2r")(d.PPP));
+							tooltip.style("visibility", "visible");
+							})
+						 .on("mousemove", function() {
+							return tooltip.style("top", (d3.event.pageY-10)+"px")
+						 .style("left",(d3.event.pageX+10)+"px");
+							})
+						 .on("mouseout", function(){
+							return tooltip.style("visibility", "hidden");
+							});			
+				});
+			
+				d3.select("#btnSA")
+					.on("click", function() {
+					d3.select("#chartcontainer").selectAll("circle").remove();
+					d3.select('svg')
+							.selectAll('circle')
+							.data(data)
+							.enter()
+							.append('circle');											
+						
+						d3.selectAll('circle')
+							.attr('cx', function(d) {
+									if (d['AREA']=="South America") {
+									return exp_scale(d['PPP'])};
+							}).attr('cy', function(d) {
+									if (d['AREA']=="South America") {
+									return score_scale(d['MATH.MEAN'])};
+							}).attr('r', 5)
+							.attr('fill', function(d) {
+									if (d['MATH.FEMALE']>=d['MATH.MALE']) {
+										return 'red';} else {return 'blue';}
+							});
+						
+						legend.append('circle')
+							.attr("class", "legendcircle")
+							.attr('cy', function(d, i) {
+								return i * 30;
+							}).attr("r", 5)
+							.attr('fill', function(d) {
+									if (d=="Male score higher***"){
+										return 'blue';}else{return 'red';}
+							});
+																											 
+						var tooltip = d3.select("#chartcontainer")
+						 .append("div")
+						 .style("position", "absolute")
+						 .style("z-index", "10")
+						 .style("visibility", "hidden")
+						 .style("color", "white")
+						 .style("padding", "8px")
+						 .style("background-color", "rgba(0, 0, 0, 0.75)")
+						 .style("border-radius", "6px")
+						 .style("font", "12px Arial")
+						 .text("tooltip");
+
+					d3.selectAll("circle")
+						 .on("mouseover", function(d) {
+							tooltip.html(d.COUNTRY + '<br\>' +
+							"Avg. Math Score: "+d3.format(".1f")(d['MATH.MEAN']) + 
+							'<br\>' + "Gender Difference: " +
+							d3.format(".1f")(Math.abs(d['MATH.DIFF'])) +
+							'<br\>' + 'GDP Per Capita: '+ '$' +
+							d3.format(",.2r")(d.PPP));
+							tooltip.style("visibility", "visible");
+							})
+						 .on("mousemove", function() {
+							return tooltip.style("top", (d3.event.pageY-10)+"px")
+						 .style("left",(d3.event.pageX+10)+"px");
+							})
+						 .on("mouseout", function(){
+							return tooltip.style("visibility", "hidden");
+							});			
+				});
+			
+			
+				d3.select("#btnAll")
+					.on("click", function() {
+					d3.select("#chartcontainer").selectAll("circle").remove();
+					d3.select('svg')
+							.selectAll('circle')
+							.data(data)
+							.enter()
+							.append('circle');											
+						
+						d3.selectAll('circle')
+							.attr('cx', function(d) {
+									return exp_scale(d['PPP']);
+							}).attr('cy', function(d) {
+									return score_scale(d['MATH.MEAN']);
+							}).attr('r', 5)
+							.attr('fill', function(d) {
+									if (d['MATH.FEMALE']>=d['MATH.MALE']) {
+										return 'red';} else {return 'blue';}
+							});
+						
+						legend.append('circle')
+							.attr("class", "legendcircle")
+							.attr('cy', function(d, i) {
+								return i * 30;
+							}).attr("r", 5)
+							.attr('fill', function(d) {
+									if (d=="Male score higher***"){
+										return 'blue';}else{return 'red';}
+							});
+																											 
+						var tooltip = d3.select("#chartcontainer")
+						 .append("div")
+						 .style("position", "absolute")
+						 .style("z-index", "10")
+						 .style("visibility", "hidden")
+						 .style("color", "white")
+						 .style("padding", "8px")
+						 .style("background-color", "rgba(0, 0, 0, 0.75)")
+						 .style("border-radius", "6px")
+						 .style("font", "12px Arial")
+						 .text("tooltip");
+
+					d3.selectAll("circle")
+						 .on("mouseover", function(d) {
+							tooltip.html(d.COUNTRY + '<br\>' +
+							"Avg. Math Score: "+d3.format(".1f")(d['MATH.MEAN']) + 
+							'<br\>' + "Gender Difference: " +
+							d3.format(".1f")(Math.abs(d['MATH.DIFF'])) +
+							'<br\>' + 'GDP Per Capita: '+ '$' +
+							d3.format(",.2r")(d.PPP));
+							tooltip.style("visibility", "visible");
+							})
+						 .on("mousemove", function() {
+							return tooltip.style("top", (d3.event.pageY-10)+"px")
+						 .style("left",(d3.event.pageX+10)+"px");
+							})
+						 .on("mouseout", function(){
+							return tooltip.style("visibility", "hidden");
+							});			
+				});
+			
+				// Add Findings
+				svg.append("text")
+						.attr("x", "300")
+						.attr("y", "375")
+						.text("• Male students perform better than female students in most countries.");
+				svg.append("text")
+						.attr("x", "350")
+						.attr("y", "400")
+						.text("- Asia has the most countries in which girls perform better");
+				svg.append("text")
+						.attr("x", "300")
+						.attr("y", "425")
+						.text("• The more developed a country is, the higher the students' math levels are.");
+				svg.append("text")
+						.attr("x", "350")
+						.attr("y", "450")
+						.text("- especially among European countries");
+				svg.append("text")
+						.attr("x", "300")
+						.attr("y", "475")
+						.text("• Economic development does not improve math performance after a certain point.");
+		
+				// Add data explanation to the end
+				d3.select("body")
+					.append("exp")
+					.html("<br>*Data was collected from a survey in 2012 by Programme for International Student Assessment (PISA). Around 510,000 students in 65 economics took part in the assessment of mathematics.<br>**GDP per capita reflects a country's economic performance. It is sometimes used as an indicator of a country's standard of living.<br>***Size of the circles shows how big the gap it is between the performance of male and female students from a given country.<br><br>Udacity Data Analyst Nanodegree Project 6<br>Data source: <a href='http://www.oecd.org/pisa/data/pisa2012database-downloadabledata.htm'>PISA 2012,</a> <a href='http://data.worldbank.org/indicator/NY.GDP.PCAP.CD'>The World Bank</a>");
+		};
+		
+	</script>
+</head>
+
+<body>
+	<div class="container" id="main">
+    <h2 class="title">Gender and Economic Inequalities Remain Critical <br>to High School Math Education Levels</h2>
+	</div>                                                                   
+	<script type="text/javascript">
+		d3.csv("FULL_DATA_ALL.csv", function(d) {
+			d['PPP'] = +d['PPP'];
+			d['MATH.MEAN'] = +d['MATH.MEAN'];
+			d['MATH.FEMALE'] = +d['MATH.FEMALE'];
+			d['MATH.MALE'] = +d['MATH.MALE'];
+			d['MATH.DIFF'] = +d['MATH.DIFF'];
+			return d;
+		},draw);
+			
+	</script>
+<div class="option">
+		<br>Filter Countries by: 
+		<input class="button" id="btnA" type="button" value="Asia"/>
+		<input class="button" id="btnE" type="button" value="Europe"/>
+		<input class="button" id="btnNA" type="button" value="North America"/>
+		<input class="button" id="btnO" type="button" value="Oceania"/>
+		<input class="button" id="btnSA" type="button" value="South America"/>
+		<input class="button" id="btnAll" type="button" value="View All"/>
+	
+	</div>
+	<div id="chartcontainer"></div>
+	</body>
+	
+</html>
